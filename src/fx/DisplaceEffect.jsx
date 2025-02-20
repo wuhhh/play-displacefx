@@ -3,7 +3,10 @@ import { Effect } from "postprocessing";
 
 const fragmentShader = `
   float displace(in vec2 uv) {          
-    float nstripes = 16.;
+    float optimalResolutionHeight = 968. * 2.;
+    float optimalStripes = 20.;
+    float optimalRatio = optimalStripes / optimalResolutionHeight;
+    float nstripes = optimalRatio * resolution.y;
 
     float displacePattern = mod(uv.y * nstripes, 1.); // 0..1 repeated
 	  displacePattern = 1. - pow(abs(displacePattern * 2. - 1.), 2.); // stripes   
@@ -19,18 +22,21 @@ const fragmentShader = `
   void mainUv(inout vec2 uv) {  
     float displacePattern = displace(uv) - .5;
     float displaceStr = .1;
-    vec2 dir = dir(uv);
-    uv.y = uv.y / (1. + displaceStr);
-    uv.y += displaceStr * .5;
+    //vec2 dir = dir(uv);
+
+    // accommodate stretching and keep centred
+    uv /= 1. + displaceStr; 
+    uv += displaceStr * .5;
+
     float d = displacePattern * displaceStr;
     uv = vec2(uv.x, uv.y + d);
   }
 
   void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
     float displacePattern = displace(vUv);
-    float displaceStr = .04;
-    vec2 dir = dir(uv);
-          
+    //float displaceStr = .04;
+    //vec2 dir = dir(uv);
+      
     outputColor = vec4(vec3(inputColor.rgb), .1);
     //outputColor = vec4(inputColor.rgb * displacePattern, 1.);
   }
@@ -44,7 +50,7 @@ class DisplaceEffectImpl extends Effect {
 }
 
 // Effect component
-export const DisplaceEffect = forwardRef(({}, ref) => {
+export const DisplaceEffect = forwardRef(({ }, ref) => {
   const effect = useMemo(() => new DisplaceEffectImpl(), []);
   return <primitive ref={ref} object={effect} dispose={null} />;
 });

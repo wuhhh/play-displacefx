@@ -1,21 +1,19 @@
 import React, { useRef } from "react";
-import * as THREE from "three";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
-import { Circle, Plane, OrbitControls } from "@react-three/drei";
+import { Circle, OrbitControls } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { useControls } from "leva";
 import { DisplaceEffect } from "./fx/DisplaceEffect";
 import GradientMaterial from "./materials/GradientMaterial";
+import { BlendFunction } from "postprocessing";
 
 extend({ GradientMaterial });
 
 const Scene = () => {
   const ref = useRef();
 
-  useFrame((_, delta) => {
-    //ref.current.rotation.x += delta * 1.2;
-    //ref.current.rotation.y += delta * 0.3;
-    //ref.current.rotation.z += delta * 1.4;
+  useFrame(({ clock }, delta) => {
+    ref.current.position.y = Math.sin(clock.elapsedTime * 0.2) * 2;
   });
 
   const config = useControls("settings", {
