@@ -5,8 +5,6 @@ import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { useControls } from "leva";
 import { DisplaceEffect } from "./fx/DisplaceEffect";
 import GradientMaterial from "./materials/GradientMaterial";
-import { BlendFunction } from "postprocessing";
-
 extend({ GradientMaterial });
 
 const Scene = () => {
@@ -14,9 +12,10 @@ const Scene = () => {
 
   useFrame(({ clock }, delta) => {
     ref.current.position.y = Math.sin(clock.elapsedTime * 0.2) * 2;
+    //ref.current.rotation.z += delta;
   });
 
-  const config = useControls("settings", {
+  const config = useControls("scene", {
     cstop1: "#fcefdc",
     cstop2: "#f17f44",
     cstop3: "#c93c1e",
@@ -30,12 +29,19 @@ const Scene = () => {
 };
 
 const App = () => {
+  const config = useControls("app", {
+    togglePattern: {
+      label: "toggle pattern",
+      value: false,
+    },
+  });
+
   return (
     <>
       <Canvas orthographic flat linear camera={{ fov: 70, position: [0, 0, 3], zoom: 200 }}>
         <OrbitControls />
         <EffectComposer>
-          <DisplaceEffect />
+          <DisplaceEffect togglePattern={config.togglePattern} />
           <Noise opacity={0.2} />
         </EffectComposer>
         <Scene />

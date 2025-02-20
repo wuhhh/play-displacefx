@@ -1,7 +1,10 @@
 import React, { forwardRef, useMemo } from "react";
+import { Uniform } from "three";
 import { Effect } from "postprocessing";
 
 const fragmentShader = `
+  uniform bool togglePattern;
+
   float displace(in vec2 uv) {          
     float optimalResolutionHeight = 968. * 2.;
     float optimalStripes = 20.;
@@ -37,20 +40,26 @@ const fragmentShader = `
     //float displaceStr = .04;
     //vec2 dir = dir(uv);
       
-    outputColor = vec4(vec3(inputColor.rgb), .1);
+    outputColor = togglePattern ? vec4(vec3(displacePattern), 1.) : vec4(vec3(inputColor.rgb), .1);
     //outputColor = vec4(inputColor.rgb * displacePattern, 1.);
   }
 `;
 
+let _uTogglePattern;
+
 // Effect implementation
 class DisplaceEffectImpl extends Effect {
-  constructor() {
-    super("DisplaceEffect", fragmentShader);
+  constructor(togglePattern) {
+    super("DisplaceEffect", fragmentShader, {
+      uniforms: new Map([["togglePattern", new Uniform(togglePattern)]]),
+    });
+
+    _uTogglePattern = togglePattern;
   }
 }
 
 // Effect component
-export const DisplaceEffect = forwardRef(({ }, ref) => {
-  const effect = useMemo(() => new DisplaceEffectImpl(), []);
+export const DisplaceEffect = forwardRef(({ togglePattern }, ref) => {
+  const effect = useMemo(() => new DisplaceEffectImpl(togglePattern), [togglePattern]);
   return <primitive ref={ref} object={effect} dispose={null} />;
 });
