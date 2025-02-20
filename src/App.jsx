@@ -12,6 +12,7 @@ const Scene = () => {
 
   useFrame(({ clock }, delta) => {
     ref.current.position.y = Math.sin(clock.elapsedTime * 0.2) * 2;
+    ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 0.1) * 0.5 + 1;
     //ref.current.rotation.z += delta;
   });
 

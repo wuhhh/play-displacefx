@@ -23,13 +23,13 @@ const fragmentShader = `
   }
   
   void mainUv(inout vec2 uv) {  
-    float displacePattern = displace(uv) - .5;
+    float displacePattern = displace(uv);
     float displaceStr = .1;
     //vec2 dir = dir(uv);
 
     // accommodate stretching and keep centred
     uv /= 1. + displaceStr; 
-    uv += displaceStr * .5;
+    uv.x += displaceStr * .5;
 
     float d = displacePattern * displaceStr;
     uv = vec2(uv.x, uv.y + d);
