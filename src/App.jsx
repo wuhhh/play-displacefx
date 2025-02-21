@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Canvas, extend, useFrame } from "@react-three/fiber";
-import { Circle, OrbitControls } from "@react-three/drei";
+import { Plane, OrbitControls } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { useControls } from "leva";
 import { DisplaceEffect } from "./fx/DisplaceEffect";
@@ -23,9 +23,9 @@ const Scene = () => {
   });
 
   return (
-    <Circle ref={ref} args={[1.5, 64]}>
+    <Plane ref={ref} args={[3, 3]}>
       <gradientMaterial {...config} key={GradientMaterial.key} />
-    </Circle>
+    </Plane>
   );
 };
 

@@ -13,7 +13,12 @@ const fragmentShader = `
 
     float displacePattern = mod(uv.y * nstripes, 1.); // 0..1 repeated
 	  displacePattern = 1. - pow(abs(displacePattern * 2. - 1.), 2.); // stripes   
-          
+
+    // Distort the pattern with gentle waves 
+    displacePattern += sin(uv.x * 50.0) * .1 * (1. - smoothstep(.01, .09, pow((distance(vec2(uv.x, uv.y * 1.19), vec2((sin(time * .5) * .1) + .6, (cos(time * .2) * .2) + .45)) * .7), 2.)));
+    displacePattern += sin(uv.x * 40.0) * .12 * (1. - smoothstep(.0, .02, pow((distance(vec2(uv.x, uv.y), vec2((sin(time) * .1) + .2, (cos(time) * .2) + .7)) * .5), 2.)));
+    displacePattern += sin(uv.x * 3.0) * -.4 * (1. - smoothstep(.0, .3, pow((distance(vec2(uv.x, uv.y), vec2(.5,.8)) * .3), 2.)));
+      
     return displacePattern;
   }
 
@@ -39,7 +44,7 @@ const fragmentShader = `
     float displacePattern = displace(vUv);
     //float displaceStr = .04;
     //vec2 dir = dir(uv);
-      
+    
     outputColor = togglePattern ? vec4(vec3(displacePattern), 1.) : vec4(vec3(inputColor.rgb), .1);
     //outputColor = vec4(inputColor.rgb * displacePattern, 1.);
   }
