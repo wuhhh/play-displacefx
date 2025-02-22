@@ -23,17 +23,38 @@ body,
   overflow: auto;
 }
 
+@font-face {
+  font-family: "ballinger-mono";
+  src:
+    url("/displace/fonts/bm/bm-regular.woff2") format("woff2"),
+    url("/displace/fonts/bm/bm-regular.woff") format("woff");
+  font-weight: normal;
+}
+
+@font-face {
+  font-family: "ballinger-mono";
+  src:
+    url("/displace/fonts/bm/bm-bold.woff2") format("woff2"),
+    url("/displace/fonts/bm/bm-bold.woff") format("woff");
+  font-weight: bold;
+}
+
 body {
   position: fixed;
   overflow: hidden;
   overscroll-behavior-y: none;
-  font-family:
-    helvetica neue,
-    helvetica,
-    arial,
-    sans-serif;
+  font-family: "ballinger-mono", monospace;
   color: black;
   -webkit-font-smoothing: antialiased;
+}
+
+.overlay {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: whitesmoke;
+  position: fixed;
+  inset: 0;
+  padding: 2rem;
 }
 
 .bdblur {

@@ -42,10 +42,9 @@ const fragmentShader = `
 
   void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
     float displacePattern = displace(vUv);
-    //float displaceStr = .04;
-    //vec2 dir = dir(uv);
-    
-    outputColor = togglePattern ? vec4(vec3(displacePattern), 1.) : vec4(vec3(inputColor.rgb), .1);
+    vec4 patternOut = vec4(vec3(displacePattern), 1.);
+    vec4 finalOut = inputColor;
+    outputColor = togglePattern ? patternOut : finalOut; 
     //outputColor = vec4(inputColor.rgb * displacePattern, 1.);
   }
 `;
