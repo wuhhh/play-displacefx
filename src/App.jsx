@@ -21,9 +21,9 @@ const Scene = () => {
     ref.current.position.y = Math.sin(clock.elapsedTime * 0.2) * 1 - 0.3;
     ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
     //ref.current.rotation.z += delta;
-
     //console.log("Wheel delta:", wheelDelta);
     //console.log("Touch delta:", getTouchDelta());
+    //ref.current.position.y += wheelDelta * 0.0005;
   });
 
   const config = useControls("scene", {
