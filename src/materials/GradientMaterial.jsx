@@ -5,7 +5,7 @@ const GradientMaterial = shaderMaterial(
   {
     time: 0,
     featherPow1: 1.18,
-    featherSmoothOut: 0.72,
+    featherSmoothOut: 0.83,
     featherPow2: 1.62,
     cstop1: -0.7,
     cstop2: 0.2,
