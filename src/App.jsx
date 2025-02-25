@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
 import { Plane, OrbitControls, Sparkles } from "@react-three/drei";
@@ -14,19 +14,47 @@ const Scene = () => {
   const ref = useRef();
   const { viewport } = useThree();
 
-  const wheelDelta = useWheel();
+  const planeFromToY = [-3.7, 3.7];
+  const wheelTicker = useRef(0.5);
+  const wheelDelta = useRef(0);
+  const progress = useRef(0);
+  const distY = useRef(0);
+  const wheelData = useWheel();
   const getTouchDelta = useTouchMove();
 
-  useFrame(({ clock }, _delta) => {
-    ref.current.position.y = Math.sin(clock.elapsedTime * 0.2) * 1 - 0.3;
+  useEffect(() => {
+    wheelTicker.current += wheelData.deltaY * 0.00025;
+  }, [wheelData]);
+
+  useFrame(({ clock }, delta) => {
     ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
-    //ref.current.rotation.z += delta;
-    //console.log("Wheel delta:", wheelDelta);
-    //console.log("Touch delta:", getTouchDelta());
-    //ref.current.position.y += wheelDelta * 0.0005;
+
+    // Reset position at bounds
+    if (ref.current.position.y < planeFromToY[0]) {
+      ref.current.position.y = planeFromToY[1];
+      wheelTicker.current += 1;
+    }
+    if (ref.current.position.y > planeFromToY[1]) {
+      ref.current.position.y = planeFromToY[0];
+      wheelTicker.current -= 1;
+    }
+
+    const targetY = THREE.MathUtils.lerp(planeFromToY[0], planeFromToY[1], wheelTicker.current);
+
+    // Current distance from target
+    distY.current = targetY - ref.current.position.y;
+
+    // Ease towards the target by closing the distance gradually
+    ref.current.position.y += distY.current * 0.0125;
   });
 
-  const config = useControls("scene", {
+  /*
+  const planeConfig = useControls("plane", {
+    position: [0, 0, 0],
+  });
+  */
+
+  const gradientMaterialConfig = useControls("gradientMaterial", {
     featherPow1: {
       value: 1.18,
       min: 0,
@@ -106,7 +134,7 @@ const Scene = () => {
         color={new THREE.Color("#fcefdc")}
       />
       <Plane ref={ref} args={[3, 3]}>
-        <gradientMaterial {...config} key={GradientMaterial.key} />
+        <gradientMaterial {...gradientMaterialConfig} key={GradientMaterial.key} />
       </Plane>
     </>
   );
@@ -143,7 +171,7 @@ const App = () => {
         <Scene />
       </Canvas>
       <Overlay />
-      <Leva hidden />
+      {/* <Leva hidden /> */}
     </>
   );
 };
