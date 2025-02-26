@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
-import { Plane, OrbitControls, Sparkles } from "@react-three/drei";
+import { Plane, Sparkles } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { Leva, useControls } from "leva";
 import useWheel from "./lib/useWheel";
@@ -15,37 +15,48 @@ const Scene = () => {
   const { viewport } = useThree();
 
   const planeFromToY = [-3.7, 3.7];
-  const wheelTicker = useRef(0.5);
-  const wheelDelta = useRef(0);
-  const progress = useRef(0);
   const distY = useRef(0);
   const wheelData = useWheel();
   const getTouchDelta = useTouchMove();
 
+  const tl = (ref, fromTo, easeFactor) => {
+    const ticker = useRef(0.5);
+
+    return {
+      onFrame() {
+        // Reset position at bounds
+        if (ref.current.position.y < fromTo[0]) {
+          ref.current.position.y = fromTo[1];
+          ticker.current += 1;
+        }
+        if (ref.current.position.y > fromTo[1]) {
+          ref.current.position.y = fromTo[0];
+          ticker.current -= 1;
+        }
+
+        const targetY = THREE.MathUtils.lerp(fromTo[0], fromTo[1], ticker.current);
+
+        // Current distance from target
+        distY.current = targetY - ref.current.position.y;
+
+        // Ease towards the target by closing the distance gradually
+        ref.current.position.y += distY.current * easeFactor;
+      },
+      incrementTicker(value) {
+        ticker.current += value;
+      },
+    };
+  };
+
+  const planeTl = tl(ref, planeFromToY, 0.0125);
+
   useEffect(() => {
-    wheelTicker.current += wheelData.deltaY * 0.00025;
+    planeTl.incrementTicker(wheelData.deltaY * 0.00025);
   }, [wheelData]);
 
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock }, _delta) => {
     ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
-
-    // Reset position at bounds
-    if (ref.current.position.y < planeFromToY[0]) {
-      ref.current.position.y = planeFromToY[1];
-      wheelTicker.current += 1;
-    }
-    if (ref.current.position.y > planeFromToY[1]) {
-      ref.current.position.y = planeFromToY[0];
-      wheelTicker.current -= 1;
-    }
-
-    const targetY = THREE.MathUtils.lerp(planeFromToY[0], planeFromToY[1], wheelTicker.current);
-
-    // Current distance from target
-    distY.current = targetY - ref.current.position.y;
-
-    // Ease towards the target by closing the distance gradually
-    ref.current.position.y += distY.current * 0.0125;
+    planeTl.onFrame();
   });
 
   /*
