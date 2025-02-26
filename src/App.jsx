@@ -19,6 +19,12 @@ const Scene = () => {
   const wheelData = useWheel();
   const getTouchDelta = useTouchMove();
 
+  /**
+   * Super simple timeline(ish) fn
+   * @param {React.RefObject<Mesh>} ref
+   * @param {Array} fromTo
+   * @param {Number} easeFactor
+   */
   const tl = (ref, fromTo, easeFactor) => {
     const ticker = useRef(0.5);
 
@@ -57,6 +63,7 @@ const Scene = () => {
   useFrame(({ clock }, _delta) => {
     ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
     planeTl.onFrame();
+    planeTl.incrementTicker(getTouchDelta().y * 0.025);
   });
 
   /*
@@ -182,7 +189,7 @@ const App = () => {
         <Scene />
       </Canvas>
       <Overlay />
-      {/* <Leva hidden /> */}
+      <Leva hidden />
     </>
   );
 };
