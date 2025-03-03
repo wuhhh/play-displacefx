@@ -54,13 +54,5 @@ body {
   color: whitesmoke;
   position: fixed;
   inset: 0;
-  padding: 2rem;
-}
-
-.bdblur {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: rgba(0, 0, 0, 0);
-  backdrop-filter: blur(0.1rem);
+  padding: 3rem;
 }

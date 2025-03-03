@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
-import { Plane } from "@react-three/drei";
+import { Center, Plane } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { Leva, useControls } from "leva";
 import useWheel from "./lib/useWheel";
@@ -44,6 +44,10 @@ const tl = (ref, fromTo, startPosition = 0.5, easeFactor) => {
 
     // Ease towards the target by closing the distance gradually
     ref.current.position.y += distY.current * easeFactor * 0.01;
+
+    // Cycle day/night
+    //ref.current.children[0].children[0].children[0].material.daynightMix = ticker.current;
+    //ref.current.children[0].children[0].children[1].material.daynightMix = ticker.current;
   });
 
   return {
@@ -57,19 +61,24 @@ const tl = (ref, fromTo, startPosition = 0.5, easeFactor) => {
  * SunMoon
  */
 const SunMoon = () => {
-  const sunMoon = useRef();
-  const fromToY = [-3.7, 3.7];
-  const sunMoonTl = tl(sunMoon, fromToY, 0.5, 1.25);
+  const { width, height } = useThree(state => state.viewport);
+  const sun = useRef();
+  const moon = useRef();
+  const sunTl = tl(sun, [-height, height], 0.5, 1.25);
+  const moonTl = tl(moon, [-height, height], 0, 1.25);
   const wheelData = useWheel();
   const getTouchDelta = useTouchMove();
 
   useEffect(() => {
-    sunMoonTl.incrementTicker(wheelData.deltaY * 0.25);
+    sunTl.incrementTicker(wheelData.deltaY * 0.25);
+    moonTl.incrementTicker(wheelData.deltaY * 0.25);
   }, [wheelData]);
 
   useFrame(({ clock }, _delta) => {
-    sunMoon.current.scale.x = sunMoon.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
-    sunMoonTl.incrementTicker(getTouchDelta().y * 25);
+    sun.current.scale.x = sun.current.scale.y = Math.sin(clock.elapsedTime * 0.5) * 0.125 + 1.25;
+    moon.current.scale.x = moon.current.scale.y = Math.sin(clock.elapsedTime * 0.5) * 0.125 + 1.25;
+    sunTl.incrementTicker(getTouchDelta().y * 25);
+    moonTl.incrementTicker(getTouchDelta().y * 25);
   });
 
   const gradientMaterialConfig = useControls("gradientMaterial", {
@@ -112,23 +121,23 @@ const SunMoon = () => {
       max: 2,
       step: 0.01,
     },
-    cvalu1a: "#dceafc",
+    cvalu1a: "#0079db",
     cstop1a: {
-      value: -0.7,
+      value: -0.2,
       min: -2,
       max: 2,
       step: 0.01,
     },
-    cvalu2a: "#306edb",
+    cvalu2a: "#246ce8",
     cstop2a: {
-      value: 0.2,
+      value: 0.03,
       min: -2,
       max: 2,
       step: 0.01,
     },
-    cvalu3a: "#00519d",
+    cvalu3a: "#1464b1",
     cstop3a: {
-      value: 0.5,
+      value: -0.3,
       min: -2,
       max: 2,
       step: 0.01,
@@ -142,13 +151,23 @@ const SunMoon = () => {
   });
 
   return (
-    <group ref={sunMoon}>
-      <Plane args={[3, 3]}>
-        <gradientMaterial {...gradientMaterialConfig} key={GradientMaterial.key} />
-      </Plane>
-      <Plane args={[8, 2]} position={[0, -0.4, 0]}>
-        <gradientMaterial {...gradientMaterialConfig} featherPow1={4} key={GradientMaterial.key} />
-      </Plane>
+    <group>
+      <Center ref={sun}>
+        <Plane args={[3, 3]}>
+          <gradientMaterial {...gradientMaterialConfig} key={GradientMaterial.key} />
+        </Plane>
+        <Plane args={[8, 2]} position={[0, -0.4, 0]}>
+          <gradientMaterial {...gradientMaterialConfig} featherPow1={4} key={GradientMaterial.key} />
+        </Plane>
+      </Center>
+      <Center ref={moon} position={[0, -height, 0]}>
+        <Plane args={[3, 3]}>
+          <gradientMaterial {...gradientMaterialConfig} key={GradientMaterial.key} />
+        </Plane>
+        <Plane args={[8, 2]} position={[0, -0.4, 0]}>
+          <gradientMaterial {...gradientMaterialConfig} featherPow1={4} key={GradientMaterial.key} />
+        </Plane>
+      </Center>
     </group>
   );
 };
@@ -187,12 +206,16 @@ const Satellites = () => {
 
 const Overlay = () => {
   return (
-    <div className='overlay'>
-      Night Follows Day
-      <br />
-      Follows Night
-      <br />
-      Follows Day
+    <div>
+      <div className='overlay'>
+        Day after day
+        <br />
+        After day
+        <br />_
+      </div>
+      <div className='scroll-cue'>
+        <div></div>
+      </div>
     </div>
   );
 };
@@ -208,7 +231,6 @@ const App = () => {
   return (
     <>
       <Canvas orthographic flat linear camera={{ fov: 70, position: [0, 0, 3], zoom: 200 }}>
-        {/* <OrbitControls /> */}
         <EffectComposer>
           <DisplaceEffect togglePattern={config.togglePattern} />
           <Noise opacity={0.2} />
@@ -217,7 +239,7 @@ const App = () => {
         <SunMoon />
       </Canvas>
       <Overlay />
-      {/* <Leva hidden /> */}
+      <Leva hidden />
     </>
   );
 };
