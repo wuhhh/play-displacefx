@@ -178,10 +178,12 @@ const Satellite = forwardRef((props, ref) => {
 });
 */
 
+/*
 const Satellites = () => {
   const ref = useRef();
   return <Satellite ref={ref} args={[8, 2]} position={[-0.0125, 0, 1]} />;
 };
+*/
 
 const Overlay = () => {
   return (
