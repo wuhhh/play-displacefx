@@ -1,7 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { forwardRef, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
-import { Plane, Sparkles } from "@react-three/drei";
+import { Plane } from "@react-three/drei";
 import { EffectComposer, Noise } from "@react-three/postprocessing";
 import { Leva, useControls } from "leva";
 import useWheel from "./lib/useWheel";
@@ -10,67 +10,67 @@ import { DisplaceEffect } from "./fx/DisplaceEffect";
 import GradientMaterial from "./materials/GradientMaterial";
 extend({ GradientMaterial });
 
-const Scene = () => {
-  const ref = useRef();
-  const { viewport } = useThree();
-
-  const planeFromToY = [-3.7, 3.7];
+/**
+ * Super simple timeline(ish) fn
+ * @param {React.RefObject<Mesh>} ref
+ * @param {Array} fromTo
+ * @param {Number} startPosition
+ * @param {Number} easeFactor
+ */
+const tl = (ref, fromTo, startPosition = 0.5, easeFactor) => {
+  const ticker = useRef(startPosition);
   const distY = useRef(0);
+
+  useEffect(() => {
+    // Set start position
+    ref.current.position.y = THREE.MathUtils.lerp(fromTo[0], fromTo[1], startPosition);
+  }, []);
+
+  useFrame(() => {
+    // Reset position at bounds
+    if (ref.current.position.y < fromTo[0]) {
+      ref.current.position.y = fromTo[1];
+      ticker.current += 1;
+    }
+    if (ref.current.position.y > fromTo[1]) {
+      ref.current.position.y = fromTo[0];
+      ticker.current -= 1;
+    }
+
+    const targetY = THREE.MathUtils.lerp(fromTo[0], fromTo[1], ticker.current);
+
+    // Current distance from target
+    distY.current = targetY - ref.current.position.y;
+
+    // Ease towards the target by closing the distance gradually
+    ref.current.position.y += distY.current * easeFactor * 0.01;
+  });
+
+  return {
+    incrementTicker(value) {
+      ticker.current += value * 0.001;
+    },
+  };
+};
+
+/**
+ * SunMoon
+ */
+const SunMoon = () => {
+  const sunMoon = useRef();
+  const fromToY = [-3.7, 3.7];
+  const sunMoonTl = tl(sunMoon, fromToY, 0.5, 1.25);
   const wheelData = useWheel();
   const getTouchDelta = useTouchMove();
 
-  /**
-   * Super simple timeline(ish) fn
-   * @param {React.RefObject<Mesh>} ref
-   * @param {Array} fromTo
-   * @param {Number} easeFactor
-   */
-  const tl = (ref, fromTo, easeFactor) => {
-    const ticker = useRef(0.5);
-
-    return {
-      onFrame() {
-        // Reset position at bounds
-        if (ref.current.position.y < fromTo[0]) {
-          ref.current.position.y = fromTo[1];
-          ticker.current += 1;
-        }
-        if (ref.current.position.y > fromTo[1]) {
-          ref.current.position.y = fromTo[0];
-          ticker.current -= 1;
-        }
-
-        const targetY = THREE.MathUtils.lerp(fromTo[0], fromTo[1], ticker.current);
-
-        // Current distance from target
-        distY.current = targetY - ref.current.position.y;
-
-        // Ease towards the target by closing the distance gradually
-        ref.current.position.y += distY.current * easeFactor;
-      },
-      incrementTicker(value) {
-        ticker.current += value;
-      },
-    };
-  };
-
-  const planeTl = tl(ref, planeFromToY, 0.0125);
-
   useEffect(() => {
-    planeTl.incrementTicker(wheelData.deltaY * 0.00025);
+    sunMoonTl.incrementTicker(wheelData.deltaY * 0.25);
   }, [wheelData]);
 
   useFrame(({ clock }, _delta) => {
-    ref.current.scale.x = ref.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
-    planeTl.onFrame();
-    planeTl.incrementTicker(getTouchDelta().y * 0.025);
+    sunMoon.current.scale.x = sunMoon.current.scale.y = Math.sin(clock.elapsedTime * 1.1) * 0.125 + 1.25;
+    sunMoonTl.incrementTicker(getTouchDelta().y * 25);
   });
-
-  /*
-  const planeConfig = useControls("plane", {
-    position: [0, 0, 0],
-  });
-  */
 
   const gradientMaterialConfig = useControls("gradientMaterial", {
     featherPow1: {
@@ -142,20 +142,45 @@ const Scene = () => {
   });
 
   return (
-    <>
-      <Sparkles
-        speed={0.05}
-        size={[0.5, 1, 2]}
-        opacity={0.75}
-        position={[0, 0, -4]}
-        scale={[viewport.width, viewport.height, 0]}
-        color={new THREE.Color("#fcefdc")}
-      />
-      <Plane ref={ref} args={[3, 3]}>
+    <group ref={sunMoon}>
+      <Plane args={[3, 3]}>
         <gradientMaterial {...gradientMaterialConfig} key={GradientMaterial.key} />
+      </Plane>
+      <Plane args={[8, 2]} position={[0, -0.4, 0]}>
+        <gradientMaterial {...gradientMaterialConfig} featherPow1={4} key={GradientMaterial.key} />
+      </Plane>
+    </group>
+  );
+};
+
+/*
+const Satellite = forwardRef((props, ref) => {
+  const planeFromToY = [-3.7, 3.7];
+  const planeTl = tl(ref, planeFromToY, 0.45, 1.25);
+  const wheelData = useWheel();
+  const getTouchDelta = useTouchMove();
+
+  useEffect(() => {
+    planeTl.incrementTicker(wheelData.deltaY * 0.25);
+  }, [wheelData]);
+
+  useFrame(() => {
+    planeTl.incrementTicker(getTouchDelta().y * 25);
+  });
+
+  return (
+    <>
+      <Plane ref={ref} {...props}>
+        <gradientMaterial featherPow1={4} cvalu2='#ea956b' />
       </Plane>
     </>
   );
+});
+*/
+
+const Satellites = () => {
+  const ref = useRef();
+  return <Satellite ref={ref} args={[8, 2]} position={[-0.0125, 0, 1]} />;
 };
 
 const Overlay = () => {
@@ -186,10 +211,11 @@ const App = () => {
           <DisplaceEffect togglePattern={config.togglePattern} />
           <Noise opacity={0.2} />
         </EffectComposer>
-        <Scene />
+        {/* <Satellites /> */}
+        <SunMoon />
       </Canvas>
       <Overlay />
-      <Leva hidden />
+      {/* <Leva hidden /> */}
     </>
   );
 };
