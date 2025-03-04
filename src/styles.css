@@ -54,5 +54,11 @@ body {
   color: whitesmoke;
   position: fixed;
   inset: 0;
-  padding: 3rem;
+  padding: 2rem;
+}
+
+@media (min-width: 51.875rem) {
+  .overlay {
+    padding: 3rem;
+  }
 }
