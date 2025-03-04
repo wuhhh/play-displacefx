@@ -60,8 +60,7 @@ body {
 .scroll-cue {
   position: fixed;
   right: 2rem;
-  top: 50vh;
-  transform: translateY(-50%);
+  bottom: 2rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -131,5 +130,10 @@ body {
 @media (min-width: 51.875rem) {
   .overlay {
     padding: 3rem;
+  }
+  .scroll-cue {
+    right: 3rem;
+    top: 50vh;
+    transform: translateY(-50%);
   }
 }
