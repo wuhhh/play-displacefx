@@ -7,7 +7,7 @@ const server = process.env.APP_ENV === "sandbox" ? { hmr: { clientPort: 443 } } 
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: "/displace/",
+  base: "/day-after-day/",
   server: server,
   resolve: {
     alias: {
