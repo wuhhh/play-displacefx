@@ -215,6 +215,10 @@ const Overlay = () => {
       </div>
       <div className='scroll-cue'>
         <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
       </div>
     </div>
   );
