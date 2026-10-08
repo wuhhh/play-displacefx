@@ -11,7 +11,7 @@ const useTouchMove = () => {
     lastDistanceRef.current.y = touchMoveXYRef.current.y = event.touches[0].clientY;
   };
 
-  const handleTouchEnd = _ => {
+  const handleTouchEnd = () => {
     lastDistanceRef.current.x = touchMoveXYRef.current.x = 0;
     lastDistanceRef.current.y = touchMoveXYRef.current.y = 0;
   };

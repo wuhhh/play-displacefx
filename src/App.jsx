@@ -1,4 +1,4 @@
-import React, { forwardRef, useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { Canvas, extend, useFrame, useThree } from "@react-three/fiber";
 import { Center, Plane } from "@react-three/drei";
@@ -61,7 +61,7 @@ const tl = (ref, fromTo, startPosition = 0.5, easeFactor) => {
  * SunMoon
  */
 const SunMoon = () => {
-  const { width, height } = useThree(state => state.viewport);
+  const { height } = useThree(state => state.viewport);
   const sun = useRef();
   const moon = useRef();
   const sunTl = tl(sun, [-height, height], 0.5, 1.25);

@@ -9,22 +9,25 @@ _A simple React Three Fiber + Vite starter with an import-ready CodeSandbox conf
 - [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/): Three.js Renderer
 - [Drei](https://github.com/pmndrs/drei): React Three Fiber Helpers
 - [Three.js](https://threejs.org/docs/index.html#manual/en/introduction/Creating-a-scene): 3D Engine
-- [Vite](https://vitejs.dev/guide/): Static Web Server
+- [Vite+](https://viteplus.dev/guide/): Dev server, build, lint and format toolchain
 - [CodeSandbox](https://codesandbox.io/docs/configuration): Online Prototyping Container (optional)
 
 ### Installation
 
 ```
-pn install
+vp install
 ```
 
 ### Scripts
 
 ```
-pn run dev
-pn run build
-pn run preview
-pn run sandbox
+vp dev
+vp build
+vp preview
+vp check
+vp run sandbox
 ```
+
 ### CodeSandbox
+
 To create a sandbox from this starter, [import your repository URL](https://codesandbox.io/dashboard/repositories) (this repo works too), or [fork this template](https://codesandbox.io/s/react-three-fiber-vite-starter-r1tgld).
